@@ -1,0 +1,104 @@
+#!/usr/bin/php
+<?php
+
+define( "ERROR_LOG_PATH", "/opt/ftpusers/log/upload-script.log");
+define( "CISCO_LOG_PATH", "/opt/ftpusers/log/cisco.log" );
+define( "BASE_PATH", "/opt/ftpusers/processed" );
+define( "TZ", 'America/Los_Angeles' );
+
+$header = '"cdrRecordType","globalCallID_callManagerId","globalCallID_callId","origLegCallIdentifier","dateTimeOrigination","origNodeId","origSpan","origIpAddr","callingPartyNumber","callingPartyUnicodeLoginUserID","origCause_location","origCause_value","origPrecedenceLevel","origMediaTransportAddress_IP","origMediaTransportAddress_Port","origMediaCap_payloadCapability","origMediaCap_maxFramesPerPacket","origMediaCap_g723BitRate","origVideoCap_Codec","origVideoCap_Bandwidth","origVideoCap_Resolution","origVideoTransportAddress_IP","origVideoTransportAddress_Port","origRSVPAudioStat","origRSVPVideoStat","destLegIdentifier","destNodeId","destSpan","destIpAddr","originalCalledPartyNumber","finalCalledPartyNumber","finalCalledPartyUnicodeLoginUserID","destCause_location","destCause_value","destPrecedenceLevel","destMediaTransportAddress_IP","destMediaTransportAddress_Port","destMediaCap_payloadCapability","destMediaCap_maxFramesPerPacket","destMediaCap_g723BitRate","destVideoCap_Codec","destVideoCap_Bandwidth","destVideoCap_Resolution","destVideoTransportAddress_IP","destVideoTransportAddress_Port","destRSVPAudioStat","destRSVPVideoStat","dateTimeConnect","dateTimeDisconnect","lastRedirectDn","pkid","originalCalledPartyNumberPartition","callingPartyNumberPartition","finalCalledPartyNumberPartition","lastRedirectDnPartition","duration","origDeviceName","destDeviceName","origCallTerminationOnBehalfOf","destCallTerminationOnBehalfOf","origCalledPartyRedirectOnBehalfOf","lastRedirectRedirectOnBehalfOf","origCalledPartyRedirectReason","lastRedirectRedirectReason","destConversationId","globalCallId_ClusterID","joinOnBehalfOf","comment","authCodeDescription","authorizationLevel","clientMatterCode","origDTMFMethod","destDTMFMethod","callSecuredStatus","origConversationId","origMediaCap_Bandwidth","destMediaCap_Bandwidth","authorizationCodeValue","outpulsedCallingPartyNumber","outpulsedCalledPartyNumber","origIpv4v6Addr","destIpv4v6Addr","origVideoCap_Codec_Channel2","origVideoCap_Bandwidth_Channel2","origVideoCap_Resolution_Channel2","origVideoTransportAddress_IP_Channel2","origVideoTransportAddress_Port_Channel2","origVideoChannel_Role_Channel2","destVideoCap_Codec_Channel2","destVideoCap_Bandwidth_Channel2","destVideoCap_Resolution_Channel2","destVideoTransportAddress_IP_Channel2","destVideoTransportAddress_Port_Channel2","destVideoChannel_Role_Channel2","IncomingProtocolID","IncomingProtocolCallRef","OutgoingProtocolID","OutgoingProtocolCallRef","currentRoutingReason","origRoutingReason","lastRedirectingRoutingReason","huntPilotPartition","huntPilotDN","calledPartyPatternUsage","IncomingICID","IncomingOrigIOI","IncomingTermIOI","OutgoingICID","OutgoingOrigIOI","OutgoingTermIOI","outpulsedOriginalCalledPartyNumber","outpulsedLastRedirectingNumber","wasCallQueued","totalWaitTimeInQueue","callingPartyNumber_uri","originalCalledPartyNumber_uri","finalCalledPartyNumber_uri","lastRedirectDn_uri","mobileCallingPartyNumber","finalMobileCalledPartyNumber","origMobileDeviceName","destMobileDeviceName","origMobileCallDuration","destMobileCallDuration","mobileCallType","originalCalledPartyPattern","finalCalledPartyPattern","lastRedirectingPartyPattern","huntPilotPattern"' . "\n";
+
+function logger($message)
+{
+	date_default_timezone_set(TZ);
+	$log = date("c") . " $message\n";
+	error_log($log, 3, ERROR_LOG_PATH);
+	return;
+}
+
+$i = 0;
+
+if(!isset($argv[1]))
+{
+	logger("No files provided");
+	exit(1);
+}
+
+$files = $argv;
+@array_shift($files);
+$outfilename = basename(CISCO_LOG_PATH);
+
+foreach ($files as $inputfile)
+{
+	$infilename = basename($inputfile);
+	logger("Processing: " . $infilename);
+	
+	$input = @fopen($inputfile, "r");
+	if(!$input)
+	{
+		logger("Unable to open $infilename for reading.");
+		return;
+	}
+	
+	$output = @fopen(CISCO_LOG_PATH, "a");
+	if(!$output)
+	{
+		logger("Unable to open $outfilename for writing.");
+		@fclose($input);
+		return;
+	}
+	
+	$i=1;
+	while (($buffer = fgets($input)) !== false)
+	{
+		if($i==1)
+		{
+			if(strcmp($header,$buffer) !== 0 )
+			{
+				logger("Header mismatch on $infilename.");
+				break;
+			}
+			$i++;
+		}
+		elseif($i==2)
+		{
+			$i++;  // ignore format line
+		}
+		else
+		{
+			echo $buffer;
+			if(!fwrite($output,$buffer))
+			{
+				logger("Write line $i of $inputfile failed while processing.");
+				/* Log write failure and continue */
+			}
+			$i++;
+		}
+	}
+	if(!feof($input))
+	{
+		logger("Error: unexpected fgets() failure on " . $infilename);
+	}
+	else
+	{
+		$path = BASE_PATH . "/" . date("Y-m-d");
+		if(!file_exists($path))
+		{
+			if(!mkdir($path, 0770, true))
+			{
+				logger("Unable to create directory: " . $path);
+			}
+		}
+		if(file_exists($path))
+		{
+			if(!rename($inputfile, $path . "/" . $infilename))
+			{
+				logger("Unaable to move file: " . $infilename);
+			}
+		}
+	}
+	logger("Processed " . ($i-1) . " lines of " . $infilename);
+	fclose($input);
+	fclose($output);
+} // end foreach file
+?>

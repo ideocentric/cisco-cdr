@@ -1,0 +1,6 @@
+"0": "No reservation."
+"1": "RSVP Reservation Failure condition at call setup or feature invocation."
+"2": "RSVP Reservation Success condition at call setup or feature invocation."
+"3": "RSVP Reservation No Response (RSVP Agent) condition at call setup or feature invocation."
+"4": "RSVP Mid Call Failure Preempted condition (preempted after call setup)."
+"5": "RSVP Mid Call Failure Lost Bandwidth condition (includes all mid-call failures except MLPP preemption)."

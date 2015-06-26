@@ -1,0 +1,5 @@
+"0": "No DTMF - Use ANY matched DTMF."
+"1": "OOB - Use OOB if endpoints behind SIPTrunk support it."
+"2": "2833 - Use RFC2833 if endpoints behind SIPTrunk support it."
+"3": "OOB and 2833 - Use both KPML and RFC2833 if endpoints behind SIPTrunk can support both."
+"4": "Unknown"
