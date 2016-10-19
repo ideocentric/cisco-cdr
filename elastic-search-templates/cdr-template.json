@@ -1,0 +1,164 @@
+{
+	"cdr": {
+		"order": 0,
+		"template": "cdr-*",
+		"settings": {
+			"index.refresh_interval": "5s"
+	},
+	"mappings": {
+		"_default_": {
+			"dynamic_templates": [
+				{
+					"message_field": {
+						"mapping": {
+							"index": "analyzed",
+							"omit_norms": true,
+							"type": "string"
+						},
+						"match_mapping_type": "string",
+						"match": "message"
+					}
+				},
+				{
+					"string_fields": {
+						"mapping": {
+							"index": "analyzed",
+							"omit_norms": true,
+							"type": "string",
+							"fields": {
+								"raw": {
+									"ignore_above": 256,
+									"index": "not_analyzed",
+									"type": "string"
+								}
+							}
+						},
+						"match_mapping_type": "string",
+						"match": "*"
+					}
+				}
+			],
+			"_all": {
+				"omit_norms": true,
+				"enabled": true
+			},
+			"properties": {
+				"cdrRecordType": {"type":"long"},
+				"globalCallID_callManagerId": {"type":"long"},
+				"globalCallID_callId": {"type":"long"},
+				"origLegCallIdentifier": {"type":"long"},
+				"origNodeId": {"type":"long"},
+				"origSpan": {"type":"long"},
+				"origIpAddr": {"type":"long"},
+				"origMediaTransportAddress_IP": {"type":"long"},
+				"origMediaTransportAddress_Port": {"type":"long"},
+				"origMediaCap_maxFramesPerPacket": {"type":"long"},
+				"origMediaCap_g723BitRate": {"type":"long"},
+				"origVideoCap_Bandwidth": {"type":"long"},
+				"origVideoTransportAddress_IP": {"type":"long"},
+				"origVideoTransportAddress_Port": {"type":"long"},
+				"destLegIdentifier": {"type":"long"},
+				"destNodeId": {"type":"long"},
+				"destSpan": {"type":"long"},
+				"destIpAddr": {"type":"long"},
+				"destMediaTransportAddress_IP": {"type":"long"},
+				"destMediaTransportAddress_Port": {"type":"long"},
+				"destMediaCap_maxFramesPerPacket": {"type":"long"},
+				"destMediaCap_g723BitRate": {"type":"long"},
+				"destVideoCap_Bandwidth": {"type":"long"},
+				"destVideoTransportAddress_IP": {"type":"long"},
+				"destVideoTransportAddress_Port": {"type":"long"},
+				"duration": {"type":"long"},
+				"destConversationId": {"type":"long"},
+				"authorizationLevel": {"type":"long"},
+				"origConversationId": {"type":"long"},
+				"origMediaCap_Bandwidth": {"type":"long"},
+				"destMediaCap_Bandwidth": {"type":"long"},
+				"origVideoCap_Bandwidth_Channel2": {"type":"long"},
+				"origVideoTransportAddress_IP_Channel2": {"type":"long"},
+				"origVideoTransportAddress_Port_Channel2": {"type":"long"},
+				"destVideoCap_Bandwidth_Channel2": {"type":"long"},
+				"destVideoTransportAddress_IP_Channel2": {"type":"long"},
+				"destVideoTransportAddress_Port_Channel2": {"type":"long"},
+				"wasCallQueued": {"type":"long"},
+				"totalWaitTimeInQueue": {"type":"long"},
+				"origMobileCallDuration": {"type":"long"},
+				"destMobileCallDuration": {"type":"long"},
+				"mobileCallType": {"type":"long"},
+
+				"origIpAddr": {"type":"ip"},
+				"origMediaTransportAddress_IP": {"type":"ip"},
+				"origVideoTransportAddress_IP": {"type":"ip"},
+				"destIpAddr": {"type":"ip"},
+				"destMediaTransportAddress_IP": {"type":"ip"},
+				"destVideoTransportAddress_IP": {"type":"ip"},
+
+				"dateTimeOrigination":{"type":"date","format":"dateOptionalTime"},
+				"dateTimeConnect":{"type":"date","format":"dateOptionalTime"},
+				"dateTimeDisconnect":{"type":"date","format":"dateOptionalTime"},
+			
+				"origgeo": {
+					"dynamic": true,
+					"type": "object",
+					"properties": {
+						"location": {
+							"type": "geo_point"
+						}
+					}
+				},
+				"origmedgeo": {
+					"dynamic": true,
+					"type": "object",
+					"properties": {
+						"location": {
+							"type": "geo_point"
+						}
+					}
+				},
+				"origvidgeo": {
+					"dynamic": true,
+					"type": "object",
+					"properties": {
+						"location": {
+							"type": "geo_point"
+						}
+					}
+				},
+				"dstgeo": {
+					"dynamic": true,
+					"type": "object",
+					"properties": {
+						"location": {
+							"type": "geo_point"
+						}
+					}
+				},
+				"dstmedgeo": {
+					"dynamic": true,
+					"type": "object",
+					"properties": {
+						"location": {
+							"type": "geo_point"
+						}
+					}
+				},
+				"dstvidgeo": {
+					"dynamic": true,
+					"type": "object",
+					"properties": {
+						"location": {
+							"type": "geo_point"
+						}
+					}
+				},
+
+				"@version": {
+					"index": "not_analyzed",
+					"type": "string"
+				}
+			}
+		 }
+	  },
+	  "aliases": {}
+   }
+}
